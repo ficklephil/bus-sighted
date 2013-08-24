@@ -22,13 +22,18 @@ google.maps.event.addDomListener(window, 'load', initialize);
 
 function createNewDirectionRequest(){
 
+    var latLngWolseyClose = new google.maps.LatLng(51.463724,-0.356787);
+    var latLngHounslowCivicCentre = new google.maps.LatLng(51.471063,-0.366958);
+    var latLngBostonManor = new google.maps.LatLng(51.496049,-0.324934);
+
+
     var originLatLng = new google.maps.LatLng(51.461971,-0.355779);
-    var destinationLatLng = new google.maps.LatLng(51.463724,-0.356787);
+    var destinationLatLng = latLngBostonManor;
 
     var directionRequest = {
         origin: originLatLng,
         destination: destinationLatLng,
-        travelMode: google.maps.TravelMode.WALKING,
+        travelMode: google.maps.TravelMode.TRANSIT,
 //        transitOptions: TransitOptions,
         unitSystem: google.maps.UnitSystem.METRIC,
 //        durationInTraffic: Boolean,
@@ -39,6 +44,24 @@ function createNewDirectionRequest(){
 //        avoidTolls: Boolean
         region: 'uk'
     };
+
+
+    //SO IF it's Walking we need to drill down into it and find
+    //the steps and print out the steps,
+
+    //IF TRANSIT
+    // it's bus we need to find the bus number,
+    //the direction of transport,
+    //the stop lat lng,
+    //the number of stops on the bus,
+    //the duration
+
+    //IF TRANSIT
+    //use transit object
+    //stops
+    //line number, direction , or picadilly line,
+    //next train time
+
 
     //Direction Route, contains the direction Leg,
     //the Direction Leg Contains the Direction Step
@@ -90,9 +113,6 @@ function createNewDirectionRequest(){
 
         console.log(directionRoutes);
 
-
-
-
         //LEG INFO
         log('-----------------DIRECTION LEG INFOMATION ---------------------');
         console.log(directionLeg);
@@ -108,15 +128,49 @@ function createNewDirectionRequest(){
 
             var directionStep = directionLeg.steps[i];
 
-            //STEPS INFO
             log('-----------------DIRECTION STEP INFOMATION ---------------------');
             console.log(directionStep);
-            log(directionStep.instructions);
-            log(directionStep.distance.text + ' can say the distance to your location is, user can choose this' );
-            log(directionStep.duration.text + ' can say : two minutes to your next way point, user can choose this.');
-            log(directionStep.start_location + ' start location, can be used for beeps');
-            log(directionStep.end_location + ' end location, can be used for beeps');
-            log('REMEMBER PATH WITHIN THIS CAN BE USER TO KEEP A USER ON TRACK');
+            console.log(directionStep.travel_mode);
+
+            if(directionStep.travel_mode == google.maps.TravelMode.WALKING){
+
+                //Run through each of the walking steps and print to screen
+                for(var q = 0;q<directionStep.steps.length;q++){
+
+                    var walkingStep = directionStep.steps[q];
+
+                    log('--------WALKING STEP INFOMATION ---------');
+                    console.log(walkingStep);
+
+                    log(walkingStep.instructions);
+                    log(walkingStep.distance.text + ' can say the distance to your location is, user can choose this' );
+                    log(walkingStep.duration.text + ' can say : two minutes to your next way point, user can choose this.');
+                    log(walkingStep.start_location + ' start location, can be used for beeps');
+                    log(walkingStep.end_location + ' end location, can be used for beeps');
+                    log('REMEMBER PATH WITHIN THIS CAN BE USER TO KEEP A USER ON TRACK');
+                }
+            }else if(directionStep.travel_mode == google.maps.TravelMode.TRANSIT)
+            {
+                log('--------TRANSIT STEP INFOMATION ---------');
+                console.log(directionStep);
+
+                log(directionStep.instructions);
+                log('Trasit Name ' + directionStep.transit.line.vehicle.name);
+                log('Bus number ' + directionStep.transit.line.short_name);
+                log('HeadSign ' + directionStep.transit.headsign);
+                log('Number Of Stops' + directionStep.transit.num_stops);
+
+
+                log(directionStep.transit.arrival_stop.name + ' Name of Arrival Stop' );
+                log(directionStep.transit.arrival_stop.location + ' Arrival Stop Lat Lng' );
+                log(directionStep.transit.departure_stop.name + ' Departure Stop');
+                log(directionStep.transit.departure_stop.location + ' Departure Stop Lat Lng');
+                log(directionStep.transit.departure_time.text + ' Departure Time');
+                log(directionStep.start_location + ' start location, can be used for beeps');
+                log(directionStep.end_location + ' end location, can be used for beeps');
+                log(directionStep.duration.text + ' duration');
+                log('REMEMBER PATH WITHIN THIS CAN BE USER TO KEEP A USER ON TRACK');
+            }
         }
     });
 }
